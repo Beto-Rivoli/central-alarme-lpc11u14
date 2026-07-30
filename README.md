@@ -6,7 +6,7 @@ O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados 
 
 ---
 
-## 🛠️ Recursos e Funcionalidades
+## Recursos e Funcionalidades
 
 - **Kernel ESM (Embedded State Machine)**:
   - Arquitetura orientada a tabela de transição por handlers.
@@ -30,15 +30,17 @@ O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados 
 
 ---
 
-## 📐 Arquitetura de Software
+## Arquitetura de Software
+
+### Diagrama de Arquitetura do Sistema
 
 ```mermaid
 flowchart TD
-    SysTick["⏱️ SysTick (10ms)"] --> SuperLoop["🔄 Super-Loop (__WFI Economia de Energia)"]
-    Inputs["🎮 Entradas (Encoder / Teclas / Serial UART)"] --> SuperLoop
-    SuperLoop --> ESM["⚙️ Kernel ESM (State Machine)"]
-    SuperLoop --> IHM["📺 Display LCD 16x2 / 💾 EEPROM 24LC512"]
-    ESM --> Actuators["🚨 Buzzer (PWM) / 💡 LED Indicador"]
+    SysTick["SysTick (10ms)"] --> SuperLoop["Super-Loop (__WFI Economia de Energia)"]
+    Inputs["Entradas (Encoder / Teclas / Serial UART)"] --> SuperLoop
+    SuperLoop --> ESM["Kernel ESM (State Machine)"]
+    SuperLoop --> IHM["Display LCD 16x2 / EEPROM 24LC512"]
+    ESM --> Actuators["Buzzer (PWM) / LED Indicador"]
 ```
 
 ### Diagrama de Estados (Navegação IHM)
@@ -78,7 +80,7 @@ stateDiagram-v2
 
 ---
 
-## 🔌 Mapeamento de Hardware / Periféricos
+## Mapeamento de Hardware / Periféricos
 
 | Periférico         | Pino LPC11U14                     | Função / Descrição                     |
 | :----------------- | :-------------------------------- | :------------------------------------- |
@@ -96,7 +98,7 @@ stateDiagram-v2
 
 ---
 
-## 📡 Comandos Seriais (UART)
+## Comandos Seriais (UART)
 
 Os comandos devem ser enviados entre os delimitadores `<` e `>`:
 
@@ -112,7 +114,7 @@ Os comandos devem ser enviados entre os delimitadores `<` e `>`:
 
 ---
 
-## 📁 Estrutura de Arquivos do Projeto
+## Estrutura de Arquivos do Projeto
 
 ```
 base_lpc11u14/
@@ -139,7 +141,7 @@ base_lpc11u14/
 
 ---
 
-## 🚀 Como Compilar
+## Como Compilar
 
 1. Abra o projeto no ambiente **MCUXpresso IDE** ou **Keil uVision**.
 2. Garanta que o toolchain **ARM GCC** esteja configurado para a família **LPC11Uxx**.
@@ -148,6 +150,6 @@ base_lpc11u14/
 
 ---
 
-## 📄 Licença
+## Licença
 
 Este projeto é disponibilizado sob a licença [MIT](https://opensource.org/licenses/MIT). Sinta-se à vontade para utilizar, estudar e modificar.
