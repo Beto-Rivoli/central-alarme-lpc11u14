@@ -1,0 +1,29 @@
+# MCUXpresso / Eclipse / GCC Build Directories
+Debug/
+Release/
+build/
+bin/
+obj/
+
+# Object & Binary Output Files
+*.o
+*.d
+*.elf
+*.axf
+*.bin
+*.hex
+*.map
+*.su
+
+# Eclipse / IDE User-Specific Settings
+.settings/
+*.launch
+
+# Editor / IDE Temporary Directories
+.vscode/
+.idea/
+
+# Archives & Temporary Files
+*.zip
+*.tmp
+*.bak

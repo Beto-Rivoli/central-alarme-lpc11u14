@@ -1,0 +1,263 @@
+classDiagram
+    direction TB
+    %% --- Camada de Kernel ---
+    namespace Kernel {
+        class StateMachine {
+            +serial_param_value : volatile uint16_t
+            -currentState : state_t
+            -edit_hi : uint16_t
+            -edit_lo : uint16_t
+            -edit_cursor : uint8_t
+            -edit_lang : uint8_t
+            -chrono_ticks : volatile uint32_t
+            -chrono_running : uint8_t
+            -cached_adc : uint16_t
+            -nav_stack : NavState_t[8]
+            -nav_sp : uint8_t
+            -stateTable : const StateHandler[13]
+            +ESM_Init() void
+            +ESM_ProcessEvent(event_t evt) output_t
+            +ESM_GetState() state_t
+            +ESM_UpdateADC(uint16_t adcVal) void
+            +ESM_GetCachedADC() uint16_t
+            +ESM_TickChrono() void
+            +ESM_GetChronoSeconds() uint32_t
+            +ESM_UpdateDisplay() void
+            -nav_push(state_t screen, uint8_t cursor) void
+            -nav_pop(state_t* out_screen, uint8_t* out_cursor) uint8_t
+            -do_back() transition_t
+            -handle_Init(event_t evt) transition_t
+            -handle_MenuConfig(event_t evt) transition_t
+            -handle_MenuADC(event_t evt) transition_t
+            -handle_MenuControl(event_t evt) transition_t
+            -handle_CfgClock(event_t evt) transition_t
+            -handle_CfgLimits(event_t evt) transition_t
+            -handle_CfgLang(event_t evt) transition_t
+            -handle_CfgBack(event_t evt) transition_t
+            -handle_EditClock(event_t evt) transition_t
+            -handle_EditLimits(event_t evt) transition_t
+            -handle_EditLang(event_t evt) transition_t
+            -handle_SubADCView(event_t evt) transition_t
+            -handle_SubCtrlView(event_t evt) transition_t
+        }
+    }
+
+    %% --- Camada de Aplicação ---
+    namespace Aplicacao {
+        class Main {
+            -tick_flag : volatile uint8_t
+            -display_tick : volatile uint8_t
+            -alarm_manual_off : uint8_t
+            +SysTick_Handler() void
+            +main() int
+        }
+
+        class SerialCmd {
+            +serial_param_value : volatile uint16_t
+            +eeprom_alarm_write_count : volatile uint32_t
+            +last_packet_status : volatile uint8_t
+            -rx_buf : char[32]
+            -rx_idx : uint8_t
+            -is_receiving : uint8_t
+            +SCMD_Init() void
+            +SCMD_Poll() event_t
+            +SCMD_SendStatus(uint16_t adcVal, uint8_t alarmOn, uint16_t hi, uint16_t lo, uint8_t lang) void
+            -toUpper(char c) char
+            -parseDecimal(const char* str, uint8_t len) uint16_t
+            -formatDecimal(uint16_t val, char* buf) void
+            -parseCommand() event_t
+        }
+
+        class Display {
+            -str_config : const char* const[]
+            -str_adc : const char* const[]
+            -str_control : const char* const[]
+            -str_cfgtitle : const char* const[]
+            -str_clock : const char* const[]
+            -str_limits : const char* const[]
+            -str_langopt : const char* const[]
+            -str_langtitle : const char* const[]
+            -str_clocktit : const char* const[]
+            -str_ctrltit : const char* const[]
+            -str_alert : const char* const[]
+            -lbuf : char[2][17]
+            -lpos : uint8_t[2]
+            +DISP_ShowMenu(state_t st, uint8_t lang) void
+            +DISP_ShowSubConfig(state_t st, uint8_t lang) void
+            +DISP_ShowADC(uint16_t adcVal, uint8_t lang) void
+            +DISP_ShowEditLimits(uint16_t hi, uint16_t lo, uint8_t cursor, uint8_t lang) void
+            +DISP_ShowEditLang(uint8_t lang) void
+            +DISP_ShowClock(uint32_t elapsedSec, uint8_t cursor, uint8_t lang) void
+            +DISP_ShowControl(uint8_t alarmOn, uint8_t cursor, uint8_t lang) void
+            +DISP_ShowAlarmAlert(uint16_t adcVal, uint8_t hiOrLo, uint8_t lang) void
+            -bufInit() void
+            -bufSetCol(uint8_t row, uint8_t col) void
+            -bufChar(uint8_t row, char c) void
+            -bufStr(uint8_t row, const char* s) void
+            -bufNum(uint8_t row, uint16_t val, uint8_t digits) void
+            -bufTime(uint8_t row, uint32_t totalSec) void
+            -bufFlush() void
+        }
+
+        class Var {
+            -sysVars : sysVars_t
+            +VAR_Init() void
+            +VAR_Save() void
+            +VAR_SaveEmergency() void
+            +VAR_GetLanguage() uint8_t
+            +VAR_SetLanguage(uint8_t lang) void
+            +VAR_GetAlarmHi() uint16_t
+            +VAR_SetAlarmHi(uint16_t val) void
+            +VAR_GetAlarmLo() uint16_t
+            +VAR_SetAlarmLo(uint16_t val) void
+            +VAR_GetLastState() uint8_t
+            +VAR_SetLastState(uint8_t st) void
+            +VAR_LogEvent(alarmLog_t log) void
+            +VAR_GetLog(uint8_t index) alarmLog_t
+            +VAR_GetLogCount() uint8_t
+            +VAR_GetAll() const sysVars_t*
+            +VAR_IsArmed() uint8_t
+            +VAR_SetArmed(uint8_t armed) void
+            -writeLogEntry(uint16_t baseAddr, const alarmLog_t* log) void
+            -readLogEntry(uint16_t baseAddr, alarmLog_t* log) void
+            -logAddr(uint8_t index) uint16_t
+        }
+
+        class Alarm {
+            -alarm_active : uint8_t
+            +ALARM_Init() void
+            +ALARM_Check(uint16_t adcVal) uint8_t
+            +ALARM_Activate() void
+            +ALARM_Deactivate() void
+            +ALARM_IsActive() uint8_t
+        }
+    }
+
+    %% --- Camada de Drivers / HAL ---
+    namespace Drivers_HAL {
+        class Lcd {
+            +LCD_Init() void
+            +LCD_Command(uint8_t cmd) void
+            +LCD_Char(char data) void
+            +LCD_String(const char* str) void
+            +LCD_SetCursor(uint8_t row, uint8_t col) void
+            +LCD_Clear() void
+            +LCD_Home() void
+            +LCD_Number(int num) void
+            -LCD_DelayUs(uint32_t us) void
+            -LCD_DelayMs(uint32_t ms) void
+            -LCD_Pulse() void
+            -LCD_SendNibble(uint8_t nibble) void
+        }
+
+        class Eeprom {
+            +I2C_EEPROM_Init() void
+            +EEPROM_WriteByte(uint16_t mem_addr, uint8_t data) void
+            +EEPROM_ReadByte(uint16_t mem_addr, uint8_t* data) void
+            +EEPROM_WritePage(uint16_t mem_addr, uint8_t* data, uint16_t len) void
+            +EEPROM_ReadSequential(uint16_t mem_addr, uint8_t* data, uint16_t len) void
+        }
+
+        class Adc {
+            +adcInit() void
+            +adcRead() unsigned int
+        }
+
+        class Pwm {
+            +pwmInit() void
+            +pwmSetDuty(uint32_t duty) void
+        }
+
+        class Inputs {
+            -enc_table : const int8_t[16]
+            -enc_prev_state : uint8_t
+            -enc_accum : int8_t
+            -key1_deb : uint8_t
+            -key2_deb : uint8_t
+            -key3_deb : uint8_t
+            -enc_sw_deb : uint8_t
+            -flag_key1 : volatile uint8_t
+            -flag_key2 : volatile uint8_t
+            -flag_key3 : volatile uint8_t
+            -flag_enc_sw : volatile uint8_t
+            -flag_enc_dir : volatile int8_t
+            +init_inputs() void
+            +key1_pressed() int
+            +key2_pressed() int
+            +key3_pressed() int
+            +enc_button_pressed() int
+            +inputs_tick() void
+            +inputs_getEvent() event_t
+        }
+
+        class Serial {
+            +serialInit() void
+            +serialSendChar(char c) void
+            +serialSendString(const char* str) void
+            +serialReadChar() int
+        }
+
+        class Io {
+            +pinMode(pin p, int mode) void
+            +digitalWrite(pin p, int value) void
+            +digitalRead(pin p) int
+            +digitalToggle(pin p) void
+        }
+
+        class Bod {
+            +BOD_Init() void
+            +BOD_IRQHandler() void
+        }
+
+        class I2c {
+            +i2cInit() void
+            +i2cSend(unsigned char endereco, unsigned char* dados, unsigned char qtd) void
+            +i2cReceive(unsigned char endereco, unsigned char* dados, unsigned char qtd) void
+            +i2cReadReg(unsigned char addr, unsigned char reg) unsigned char
+            +i2cWriteReg(unsigned char addr, unsigned char reg, unsigned char data) void
+        }
+
+        class Mcp7940 {
+            +bcdToDec(unsigned char bcd) unsigned char
+            +decToBcd(unsigned char dec) unsigned char
+            +mcp7940Init() void
+            +mcpReadReg(unsigned char reg) unsigned char
+            +mcpWriteReg(unsigned char reg, unsigned char value) void
+            +mcpSramWrite(unsigned char addr, const unsigned char* data, unsigned char len) void
+            +mcpSramRead(unsigned char addr, unsigned char* data, unsigned char len) void
+        }
+    }
+
+    %% --- Relações e Dependências ---
+    Main ..> StateMachine : "inicializa e despacha eventos"
+    Main ..> SerialCmd : "inicializa e pesquisa comandos"
+    Main ..> Var : "inicializa"
+    Main ..> Alarm : "inicializa e verifica status"
+    Main ..> Lcd : "inicializa"
+    Main ..> Eeprom : "inicializa e testa"
+    Main ..> Adc : "inicializa e lê"
+    Main ..> Pwm : "inicializa"
+    Main ..> Serial : "inicializa e depura"
+    Main ..> Inputs : "inicializa e lê ticks"
+    
+    StateMachine ..> Var : "lê/grava configurações"
+    StateMachine ..> Alarm : "verifica e atua"
+    StateMachine ..> Display : "desenha telas"
+    
+    SerialCmd ..> Serial : "lê e envia caracteres"
+    SerialCmd ..> Var : "atualiza limites/armamento"
+    SerialCmd ..> Mcp7940 : "acessa RTC"
+    SerialCmd ..> I2c : "comunicação I2C"
+    
+    Display ..> Lcd : "desenha texto"
+    Display ..> Var : "lê variáveis de estado"
+    
+    Alarm ..> Var : "lê limites"
+    Alarm ..> Pwm : "aciona buzzer"
+    Alarm ..> Io : "aciona LED"
+    
+    Eeprom ..> I2c : "barramento I2C"
+    Mcp7940 ..> I2c : "barramento I2C"
+    
+    Bod ..> Alarm : "desativa em emergência"
+    Bod ..> Var : "grava cópia de emergência"
