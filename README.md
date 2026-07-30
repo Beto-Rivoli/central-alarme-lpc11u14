@@ -1,5 +1,12 @@
 # Central de Alarme Embarcada — LPC11U14 (ARM Cortex-M0)
 
+![C](https://img.shields.io/badge/Language-C-00599C?style=flat&logo=c&logoColor=white)
+![ARM](https://img.shields.io/badge/Architecture-ARM%20Cortex--M0-0091BD?style=flat&logo=arm&logoColor=white)
+![MCU](https://img.shields.io/badge/MCU-NXP%20LPC11U14-F05A28?style=flat)
+![Display](https://img.shields.io/badge/Display-LCD%2016x2-6f42c1?style=flat)
+![Storage](https://img.shields.io/badge/Storage-EEPROM%2024LC512-20c997?style=flat)
+![License](https://img.shields.io/badge/License-MIT-78C000?style=flat)
+
 Um sistema embarcado completo de **Central de Alarme e Monitoramento** desenvolvido em **C** para o microcontrolador **NXP LPC11U14 (ARM Cortex-M0 @ 48 MHz)**.
 
 O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados Finita (ESM)**, temporização determinística por **SysTick**, modos de baixo consumo de energia (`__WFI`), display LCD com buffer anti-flicker e persistência de dados em EEPROM externa via barramento I2C.
