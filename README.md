@@ -32,22 +32,13 @@ O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados 
 
 ## 📐 Arquitetura de Software
 
-```
-                             +-------------------+
-                             |    SysTick 10ms   |
-                             +---------+---------+
-                                       |
-                                       v
-+------------------+         +-------------------+         +-------------------+
-| Inputs (Encoder/ | ---->   |    Super-Loop     |  ---->  |   Kernel ESM      |
-| Teclas / Serial) |         |     (__WFI)       |         |  (State Machine)  |
-+------------------+         +---------+---------+         +---------+---------+
-                                       |                             |
-                                       v                             v
-                             +-------------------+         +-------------------+
-                             |  Display / EEPROM |         |   Buzzer / LED    |
-                             |   (IHM e Variaveis)         |      (Alarme)     |
-                             +-------------------+         +-------------------+
+```mermaid
+flowchart TD
+    SysTick["⏱️ SysTick (10ms)"] --> SuperLoop["🔄 Super-Loop (__WFI Economia de Energia)"]
+    Inputs["🎮 Entradas (Encoder / Teclas / Serial UART)"] --> SuperLoop
+    SuperLoop --> ESM["⚙️ Kernel ESM (State Machine)"]
+    SuperLoop --> IHM["📺 Display LCD 16x2 / 💾 EEPROM 24LC512"]
+    ESM --> Actuators["🚨 Buzzer (PWM) / 💡 LED Indicador"]
 ```
 
 ### Diagrama de Estados (Navegação IHM)
