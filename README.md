@@ -50,6 +50,41 @@ O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados 
                              +-------------------+         +-------------------+
 ```
 
+### Diagrama de Estados (Navegação IHM)
+
+```mermaid
+stateDiagram-v2
+    [*] --> ST_INIT
+    ST_INIT --> ST_MENU_CONFIG
+
+    state "Menu Principal (Rotativo)" as MainMenu {
+        ST_MENU_CONFIG --> ST_MENU_ADC: CW / KEY3
+        ST_MENU_ADC --> ST_MENU_CONTROL: CW / KEY3
+        ST_MENU_CONTROL --> ST_MENU_CONFIG: CW / KEY3
+    }
+
+    state "Sub-Menu Configuração" as SubConfig {
+        ST_CFG_CLOCK --> ST_CFG_LIMITS: CW / KEY3
+        ST_CFG_LIMITS --> ST_CFG_LANG: CW / KEY3
+        ST_CFG_LANG --> ST_CFG_BACK: CW / KEY3
+        ST_CFG_BACK --> ST_CFG_CLOCK: CW / KEY3
+    }
+
+    ST_MENU_CONFIG --> ST_CFG_CLOCK: SW (Entrar)
+    ST_MENU_ADC --> ST_SUB_ADC_VIEW: SW (Entrar)
+    ST_MENU_CONTROL --> ST_SUB_CTRL_VIEW: SW (Entrar)
+
+    ST_CFG_CLOCK --> ST_EDIT_CLOCK: SW
+    ST_CFG_LIMITS --> ST_EDIT_LIMITS: SW
+    ST_CFG_LANG --> ST_EDIT_LANG: SW
+
+    ST_SUB_ADC_VIEW --> ST_MENU_ADC: KEY1 (Voltar)
+    ST_SUB_CTRL_VIEW --> ST_MENU_CONTROL: KEY1 (Voltar)
+    ST_EDIT_CLOCK --> ST_CFG_CLOCK: KEY1 (Voltar)
+    ST_EDIT_LIMITS --> ST_CFG_LIMITS: KEY1 (Voltar)
+    ST_EDIT_LANG --> ST_CFG_LANG: KEY1 (Voltar)
+```
+
 ---
 
 ## 🔌 Mapeamento de Hardware / Periféricos
@@ -90,6 +125,8 @@ Os comandos devem ser enviados entre os delimitadores `<` e `>`:
 
 ```
 base_lpc11u14/
+├── docs/
+│   └── diagrams/        # Diagramas e documentação gráfica do projeto
 ├── src/
 │   ├── main.c           # Super-loop principal e inicialização
 │   ├── stateMachine.c/h # Kernel ESM e gerenciamento de transições
