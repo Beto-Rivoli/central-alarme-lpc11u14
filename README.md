@@ -34,14 +34,7 @@ O projeto utiliza uma **Arquitetura Orientada a Eventos com Máquina de Estados 
 
 ### Diagrama de Arquitetura do Sistema
 
-```mermaid
-flowchart TD
-    SysTick["SysTick (10ms)"] --> SuperLoop["Super-Loop (__WFI Economia de Energia)"]
-    Inputs["Entradas (Encoder / Teclas / Serial UART)"] --> SuperLoop
-    SuperLoop --> ESM["Kernel ESM (State Machine)"]
-    SuperLoop --> IHM["Display LCD 16x2 / EEPROM 24LC512"]
-    ESM --> Actuators["Buzzer (PWM) / LED Indicador"]
-```
+![Diagrama de Arquitetura do Sistema](docs/diagrams/system_architecture_diagram-2.png)
 
 ### Diagrama de Estados (Navegação IHM)
 
